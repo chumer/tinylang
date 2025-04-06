@@ -29,11 +29,11 @@ import com.oracle.truffle.api.source.Source;
 
 @TruffleLanguage.Registration(id = "tiny")
 @ProvidedTags({ RootTag.class, RootBodyTag.class, StatementTag.class, AlwaysHalt.class })
-public final class TinyLanguage extends TruffleLanguage<Env> {
+public final class TinyLanguage3 extends TruffleLanguage<Env> {
 
     @Override
     protected CallTarget parse(ParsingRequest request) throws Exception {
-        TinyRootNode parsedRoot = parse(this, request.getSource()).getNode(0);
+        TinyRootNode3 parsedRoot = parse(this, request.getSource()).getNode(0);
         System.out.println(parsedRoot.dump());
         return parsedRoot.getCallTarget();
     }
@@ -51,7 +51,7 @@ public final class TinyLanguage extends TruffleLanguage<Env> {
     static final class Scope {
 
         final Map<String, BytecodeLocal> locals = new HashMap<>();
-        final Map<String, TinyRootNode> functions = new HashMap<>();
+        final Map<String, TinyRootNode3> functions = new HashMap<>();
 
         final Scope parent;
         final String name;
@@ -63,18 +63,15 @@ public final class TinyLanguage extends TruffleLanguage<Env> {
 
     }
 
-    public static BytecodeRootNodes<TinyRootNode> parse(TinyLanguage language, Source source) {
-        return TinyRootNodeGen.create(language, BytecodeConfig.DEFAULT, (TinyRootNodeGen.Builder b) -> {
-            b.beginSource(source);
-            b.beginSourceSection(0, source.getLength());
+    public static BytecodeRootNodes<TinyRootNode3> parse(TinyLanguage3 language, Source source) {
+        return TinyRootNode3Gen.create(language, BytecodeConfig.DEFAULT, (b) -> {
             b.beginRoot();
+
             SExpression.walk(source.getCharacters().toString(), new SExpression.Visitor() {
                 private Scope scope = new Scope("root", null);
 
                 @Override
                 public void onOpen(String operator, Supplier<String> identifiers) {
-                    b.beginSourceSection();
-                    b.beginTag(StatementTag.class);
                     switch (operator) {
                     case "add":
                         b.beginAdd();
@@ -96,7 +93,6 @@ public final class TinyLanguage extends TruffleLanguage<Env> {
                     case "def":
                         String functionName = identifiers.get();
                         this.scope = new Scope(functionName, this.scope);
-                        b.beginBlock();
                         b.beginRoot();
                         String argument;
                         int index = 0;
@@ -110,14 +106,12 @@ public final class TinyLanguage extends TruffleLanguage<Env> {
                         break;
                     case "call":
                         String targetName = identifiers.get();
-                        TinyRootNode target = scope.functions.get(targetName);
+                        TinyRootNode3 target = scope.functions.get(targetName);
                         if (target == null) {
                             error("Invalid function " + targetName);
                         }
                         b.beginDirectCall(target);
                         break;
-                    default:
-                        throw new UnsupportedOperationException();
                     }
                 }
 
@@ -140,18 +134,15 @@ public final class TinyLanguage extends TruffleLanguage<Env> {
                         b.endStoreLocal();
                         break;
                     case "def":
-                        TinyRootNode root = b.endRoot();
+                        TinyRootNode3 root = b.endRoot();
                         root.name = scope.name;
                         scope = scope.parent;
                         scope.functions.put(root.name, root);
-                        b.endBlock();
                         break;
                     case "call":
                         b.endDirectCall();
                         break;
                     }
-                    b.endTag(StatementTag.class);
-                    b.endSourceSection(startIndex, length);
                 }
 
                 @Override
@@ -181,8 +172,6 @@ public final class TinyLanguage extends TruffleLanguage<Env> {
             });
 
             b.endRoot().name = "program";
-            b.endSourceSection();
-            b.endSource();
         });
     }
 
@@ -190,11 +179,11 @@ public final class TinyLanguage extends TruffleLanguage<Env> {
         throw new IllegalStateException(message);
     }
 
-    @GenerateBytecode(languageClass = TinyLanguage.class, enableBlockScoping = false, boxingEliminationTypes = {
+    @GenerateBytecode(languageClass = TinyLanguage3.class, enableBlockScoping = false, boxingEliminationTypes = {
             int.class }, enableTagInstrumentation = true)
-    public static abstract class TinyRootNode extends RootNode implements BytecodeRootNode {
+    public static abstract class TinyRootNode3 extends RootNode implements BytecodeRootNode {
 
-        protected TinyRootNode(TinyLanguage language, FrameDescriptor frameDescriptor) {
+        protected TinyRootNode3(TinyLanguage3 language, FrameDescriptor frameDescriptor) {
             super(language, frameDescriptor);
         }
 
@@ -217,11 +206,11 @@ public final class TinyLanguage extends TruffleLanguage<Env> {
         }
 
         @Operation
-        @ConstantOperand(name = "target", type = TinyRootNode.class)
+        @ConstantOperand(name = "target", type = TinyRootNode3.class)
         static final class DirectCall {
 
             @Specialization
-            static Object doDirect(TinyRootNode target, @Variadic Object[] args, @Bind Node location) {
+            static Object doDirect(TinyRootNode3 target, @Variadic Object[] args, @Bind Node location) {
                 return target.getCallTarget().call(location, args);
             }
 
