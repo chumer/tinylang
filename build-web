@@ -1,0 +1,12 @@
+#!/bin/bash
+native-image --tool:svm-wasm \
+  --enable-native-access=org.graalvm.truffle \
+  -J--sun-misc-unsafe-memory-access=allow \
+  --no-fallback \
+  -Dpolyglot.image-build-time.PreinitializeContexts=tiny \
+  -H:-CopyLanguageResources \
+  -H:-IncludeLanguageResources \
+  --initialize-at-run-time=org.graalvm.tinylang.TinyLauncher2 \
+  -cp target/lib/nativeimage.jar:target/lib/polyglot.jar:target/lib/truffle-api.jar:target/lib/launcher-common.jar:./target/classes \
+  org.graalvm.tinylang.TinyLauncher2 \
+  -o web/tiny-native

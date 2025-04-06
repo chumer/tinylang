@@ -3,9 +3,14 @@ hs_err_pid*
 replay_pid*
 
 tiny-native
-./target
-./v8
-./web/tiny-native.js
-./web/tiny-native.js.wasm
-./web/tiny-native.js.wat
-./graal_dumps
+target
+v8
+web/tiny-native.js
+web/tiny-native.js.wasm
+web/tiny-native.js.wat
+graal_dumps
+.project
+.factorypath
+.classpath
+target/lib
+.settings

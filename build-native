@@ -1,0 +1,9 @@
+#!/bin/bash
+native-image \
+  --enable-native-access=org.graalvm.truffle \
+  -J--sun-misc-unsafe-memory-access=allow \
+  --no-fallback \
+  -Dpolyglot.image-build-time.PreinitializeContexts=tiny \
+  -cp target/lib/*:./target/classes \
+  org.graalvm.tinylang.TinyLauncher \
+  -o tiny-native

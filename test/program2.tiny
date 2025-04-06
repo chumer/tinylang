@@ -1,0 +1,12 @@
+(set sum 0)
+(set i 0)
+(while 
+  (lt i 10000)
+  (block 
+    (set sum 
+      (add sum i))
+    (set i 
+      (add i 1))
+  )
+)
+sum

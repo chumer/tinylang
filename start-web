@@ -1,0 +1,4 @@
+#!/bin/bash
+
+jwebserver --port 8000 --directory /Users/christianhumer/graal/presdev/tinylang/web
+

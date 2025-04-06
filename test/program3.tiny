@@ -1,0 +1,29 @@
+(def sumLoop limit 
+  (block 
+    (set sum 0)
+    (set i 0)
+    (while 
+      (lt i limit)
+      (block 
+        (set sum 
+          (add sum i))
+        (set i 
+          (add i 1))
+      )
+    )
+    sum
+  )
+)
+
+(set i 0)
+(set sum 0)
+(while 
+  (lt i 10000)
+  (block 
+    (set sum 
+      (call sumLoop i))
+    (set i 
+      (add i 1))
+  )
+)
+sum
